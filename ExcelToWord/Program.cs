@@ -8,10 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureDefaults("ExcelToWord");
 
-var botToken = builder.Configuration["BotConfiguration:Token"];
-builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
-builder.Services.AddHostedService<TelegramBotService>();
-
 var app = builder.Build();
 
 await app.ConfigureDefaults();

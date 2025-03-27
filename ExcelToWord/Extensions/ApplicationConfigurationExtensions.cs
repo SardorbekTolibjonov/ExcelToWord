@@ -10,6 +10,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using Telegram.Bot;
 
 namespace ExcelToWord.Extensions;
 
@@ -25,7 +26,8 @@ public static class ApplicationConfigurationExtensions
             .ConfigureSwagger(appName)
             .ConfigureControllers()
             .ConfigureGlobalExceptionHandler()
-            .AddServices();
+            .AddServices()
+            .AddTelegramClient();
 
         return builder;
     }
@@ -178,6 +180,13 @@ public static class ApplicationConfigurationExtensions
         builder.Services.AddScoped<GlobalExceptionHandlerMiddleware>();
         return builder;
     }
-    
+
+    private static WebApplicationBuilder AddTelegramClient(this WebApplicationBuilder builder)
+    {
+        var botToken = builder.Configuration["BotConfiguration:Token"];
+        builder.Services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+        builder.Services.AddHostedService<TelegramBotService>();
+        return builder;
+    }
     
 }
