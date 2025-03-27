@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
 using System.Text.Json.Serialization;
+using BRB.Core.EF.Extensions;
 using BRB.Core.Web.Fallback;
 using BRB.Core.Web.Middlewares;
+using ExcelToWord.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -44,7 +46,7 @@ public static class ApplicationConfigurationExtensions
 
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-        app.UseHealthChecks("/healthy");
+        // app.UseHealthChecks("/healthy");
         app.UseAuthorization();
         app.UseCustom404Page("");
         app.MapControllers();
@@ -102,7 +104,7 @@ public static class ApplicationConfigurationExtensions
             var xmlPath = Path.Join(AppContext.BaseDirectory, xmlFile);
 
             options.CustomSchemaIds(type => type.FullName);
-            options.IncludeXmlComments(xmlPath);
+            // options.IncludeXmlComments(xmlPath);
             /*options.OperationFilter<MlfHeaderFilter>();
             options.OperationFilter<PermissionFilter>();
 
@@ -163,6 +165,7 @@ public static class ApplicationConfigurationExtensions
         // builder.Services.ConfigureServicesFromTypeAssembly<AuthService>();
         builder.Services.AddMemoryCache();
         builder.Services.AddHttpContextAccessor();
+        builder.Services.ConfigureServicesFromTypeAssembly<ReportService>();
         
         builder.Services.AddHttpClient("OfficeTools",
             client => { client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("OfficeToolsUrl")!); });
