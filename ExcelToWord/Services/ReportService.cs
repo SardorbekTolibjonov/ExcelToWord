@@ -30,9 +30,9 @@ public class ReportService(IWebHostEnvironment environment)
             ["Report"] = reportList
         };
         var memoryStream = new MemoryStream();
-        var path = Path.Join(environment.ContentRootPath, "Services", "Templates", "ReportTemplate000.docx");
+        var path = Path.Join(environment.ContentRootPath, "Services", "Templates", "ReportTemplate.docx");
         await memoryStream.SaveAsByTemplateAsync(path, model);
-        // memoryStream.Position = 0;
+        memoryStream.Position = 0;
         await Convert(reportList, memoryStream);
         return memoryStream;
     }
