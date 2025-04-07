@@ -8,5 +8,10 @@ namespace ExcelToWord.Controllers;
 public class ReportController(ReportService service) : ControllerBase
 {
     [HttpPost]
-    public async Task ReadReport(IFormFile file) => await service.ReadFile(file); 
+    public async Task<IActionResult> ReadReport(IFormFile file)
+    {
+        var stream = await service.ReadFile(file);
+
+        return this.File(stream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Report");
+    }
 }
