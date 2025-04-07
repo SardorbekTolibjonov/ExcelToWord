@@ -105,7 +105,7 @@ public class TelegramBotService : BackgroundService
 
         await _botClient.SendDocument(
             chatId: message.Chat.Id,
-            document: doc,
+            document: new InputFileStream(new MemoryStream(doc.ToArray()), "Report.docx"), // Fix the InputOnlineFile usage
             caption: "Sizning faylingiz tayyor! 📄",
             parseMode: ParseMode.Html,
             cancellationToken: cancellationToken
