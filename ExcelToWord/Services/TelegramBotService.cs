@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using ExcelToWord.Controllers;
+using ExcelToWord.Services;
+using Serilog;
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -8,11 +10,12 @@ public class TelegramBotService : BackgroundService
 {
     private readonly ITelegramBotClient _botClient;
     private readonly CancellationTokenSource _cts;
-
-    public TelegramBotService(ITelegramBotClient botClient)
+    private readonly ReportService _reportService;
+    public TelegramBotService(ITelegramBotClient botClient, IServiceScopeFactory scopeFactory)
     {
         _botClient = botClient;
         _cts = new CancellationTokenSource();
+        _reportService = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ReportService>();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -80,6 +83,31 @@ public class TelegramBotService : BackgroundService
 
     private async Task HandleExcelFileAsync(Message? message, CancellationToken cancellationToken)
     {
-        
+        if (message?.Document == null)
+        {
+            Log.Error("Document is null");
+            return;
+        }
+
+        var file = await _botClient.GetFile(message.Document.FileId, cancellationToken);
+        using var stream = new MemoryStream();
+        await _botClient.DownloadFile(file.FilePath, stream, cancellationToken);
+        stream.Position = 0;
+
+        var formFile = new FormFile(stream, 0, stream.Length, message.Document.FileName, message.Document.FileName)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = message.Document.MimeType
+        };
+
+        var doc = await _reportService.ReadFile(formFile);
+
+        await _botClient.SendDocument(
+            chatId: message.Chat.Id,
+            document: doc,
+            caption: "Sizning faylingiz tayyor! 📄",
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken
+        );
     }
 }
