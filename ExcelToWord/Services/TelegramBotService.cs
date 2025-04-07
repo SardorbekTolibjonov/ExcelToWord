@@ -93,24 +93,24 @@ public class TelegramBotService : BackgroundService
         if (file.FilePath != null) await _botClient.DownloadFile(file.FilePath, stream, cancellationToken);
         stream.Position = 0;
 
-        if (message.Document.FileName != null && message.Document.MimeType != null) 
+        if (message.Document.FileName != null && message.Document.MimeType != null)
         {
-                var formFile = new FormFile(stream, 0, stream.Length, message.Document.FileName, message.Document.FileName)
-                {
-                    Headers = new HeaderDictionary(),
-                    ContentType = message.Document.MimeType
-                };
+            var formFile = new FormFile(stream, 0, stream.Length, message.Document.FileName, message.Document.FileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = message.Document.MimeType
+            };
 
-                // var doc = await _reportService.ReadFileByMiniWord(formFile, "MiniwordTemplate.docx");
-                var doc = await _reportService.ReadReportByOfficeTool(formFile, "ReportTemplate.docx");
+            // var doc = await _reportService.ReadFileByMiniWord(formFile, "MiniwordTemplate.docx");
+            var doc = await _reportService.ReadReportByOfficeTool(formFile, "ReportTemplate.docx");
 
-                await _botClient.SendDocument(
-                    chatId: message.Chat.Id,
-                    document: doc,
-                    caption: "Sizning faylingiz tayyor! 📄",
-                    parseMode: ParseMode.Html,
-                    cancellationToken: cancellationToken
-                );
+            await _botClient.SendDocument(
+                chatId: message.Chat.Id,
+                document: new InputFileStream(new MemoryStream(doc.ToArray()), "Report.docx"), // Fix the InputOnlineFile usage
+                caption: "Sizning faylingiz tayyor! 📄",
+                parseMode: ParseMode.Html,
+                cancellationToken: cancellationToken
+            );
         }
     }
 }
