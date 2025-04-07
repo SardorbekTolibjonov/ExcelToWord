@@ -100,7 +100,8 @@ public class TelegramBotService : BackgroundService
             ContentType = message.Document.MimeType
         };
 
-        var doc = await _reportService.ReadFile(formFile);
+        // var doc = await _reportService.ReadFileByMiniWord(formFile, "MiniwordTemplate.docx");
+        var doc = await _reportService.ReadReportByOfficeTool(formFile, "ReportTemplate.docx");
 
         await _botClient.SendDocument(
             chatId: message.Chat.Id,
