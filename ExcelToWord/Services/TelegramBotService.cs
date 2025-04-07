@@ -1,10 +1,9 @@
-﻿using ExcelToWord.Controllers;
-using ExcelToWord.Services;
-using Serilog;
-using System.Threading;
+﻿using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
+namespace ExcelToWord.Services;
 
 public class TelegramBotService : BackgroundService
 {
@@ -91,24 +90,27 @@ public class TelegramBotService : BackgroundService
 
         var file = await _botClient.GetFile(message.Document.FileId, cancellationToken);
         using var stream = new MemoryStream();
-        await _botClient.DownloadFile(file.FilePath, stream, cancellationToken);
+        if (file.FilePath != null) await _botClient.DownloadFile(file.FilePath, stream, cancellationToken);
         stream.Position = 0;
 
-        var formFile = new FormFile(stream, 0, stream.Length, message.Document.FileName, message.Document.FileName)
+        if (message.Document.FileName != null && message.Document.MimeType != null)
         {
-            Headers = new HeaderDictionary(),
-            ContentType = message.Document.MimeType
-        };
+            var formFile = new FormFile(stream, 0, stream.Length, message.Document.FileName, message.Document.FileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = message.Document.MimeType
+            };
 
-        // var doc = await _reportService.ReadFileByMiniWord(formFile, "MiniwordTemplate.docx");
-        var doc = await _reportService.ReadReportByOfficeTool(formFile, "ReportTemplate.docx");
+            // var doc = await _reportService.ReadFileByMiniWord(formFile, "MiniwordTemplate.docx");
+            var doc = await _reportService.ReadReportByOfficeTool(formFile, "ReportTemplate.docx");
 
-        await _botClient.SendDocument(
-            chatId: message.Chat.Id,
-            document: new InputFileStream(new MemoryStream(doc.ToArray()), "Report.docx"), // Fix the InputOnlineFile usage
-            caption: "Sizning faylingiz tayyor! 📄",
-            parseMode: ParseMode.Html,
-            cancellationToken: cancellationToken
-        );
+            await _botClient.SendDocument(
+                chatId: message.Chat.Id,
+                document: new InputFileStream(new MemoryStream(doc.ToArray()), "Report.docx"), // Fix the InputOnlineFile usage
+                caption: "Sizning faylingiz tayyor! 📄",
+                parseMode: ParseMode.Html,
+                cancellationToken: cancellationToken
+            );
+        }
     }
 }

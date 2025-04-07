@@ -54,6 +54,10 @@ public class ReportService(IWebHostEnvironment environment)
 
     private async Task<List<ReportDto>> ReadFromExcel(IFormFile file)
     {
+        var excelContentTypes = new[]{ "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "text/csv"};
+        if(!excelContentTypes.Contains(file.ContentType))
+            throw new FileFormatException("Only excel and csv file format is supported");
+        
         var items = await file.OpenReadStream().QueryAsync<ReportDto>(excelType: ExcelType.CSV);
         var reportList = items.ToList();
         if(reportList.Count == 0)
