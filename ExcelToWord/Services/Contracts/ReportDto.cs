@@ -33,12 +33,12 @@ public class ReportDto
     [ExcelColumn(Index = 26)] public string Description { get; set; } = default!;
     [ExcelColumn(Index = 27)] public string Environment { get; set; } = default!;
     public int Number { get; set; }
-    //   ==ProjectLead==
+    //   ==Assignee==
 }
 public class WordModel
 {
     public List<ReportDto> Items { get; set; }
     public string Position { get; set; } = default!;
-    public string Assignee { get; set; } = default!;
+    public string Assignee1 { get; set; } = default!;
     public string Month { get; set; } = default!;
 }

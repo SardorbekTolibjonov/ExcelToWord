@@ -75,7 +75,7 @@ public class ReportService(IWebHostEnvironment environment)
         var placeholders = WordFactory.MakePlaceholders(new WordModel()
             {
                 Items = model,
-                Assignee = model.Select(x => x.Assignee).First().ToString(),
+                Assignee1 = model.Select(x => x.Assignee).First().ToString(),
                 Position = "Custom Position",
                 Month = $"{DateTime.Now.Year} - {DateTime.Now.Month:MMMM}",
             }
